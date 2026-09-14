@@ -61,16 +61,16 @@ const LEVEL_TRANSITION_DURATION = 1500; // ms que se muestra "Nivel X superado"
 
 ## Criterios de aceptación
 
-- [ ] El canvas muestra "Nivel: X" junto a la puntuación y las vidas durante toda la partida.
-- [ ] El nivel 1 genera 4 filas de bloques; el nivel 5 genera 8 filas; los niveles intermedios generan un número creciente de filas entre ambos.
-- [ ] El color de cada fila se asigna de forma aleatoria en cada nivel usando la paleta completa de 7 colores del spritesheet.
-- [ ] La velocidad de la bola en el nivel N es mayor que en el nivel N-1, tanto al lanzarla como al reposicionarla tras perder una vida dentro de ese nivel.
-- [ ] Al destruir todos los bloques de un nivel (excepto el 5º), aparece el overlay "Nivel X superado", que desaparece solo tras ~1.5s, y el juego continúa en el siguiente nivel con la bola pegada a la pala.
-- [ ] Las vidas y la puntuación acumuladas se conservan al pasar de un nivel a otro (no se reinician).
-- [ ] Al destruir todos los bloques del nivel 5, se muestra la pantalla de Victoria final existente (SPEC 01) con la puntuación total, sin overlay de "levelup" y sin generar un nivel 6.
-- [ ] Reiniciar la partida desde Game Over o Victoria vuelve siempre a nivel 1, con puntuación, vidas y velocidad de bola iniciales.
-- [ ] `ball-bounce.mp3` sigue sonando en cada rebote de pared/pala y `break-sound.mp3` en cada bloque roto, en todos los niveles.
-- [ ] El botón de silenciar/activar sonido (SPEC 02) sigue funcionando igual en todos los niveles y estados, incluido el nuevo estado "levelup".
+- [X] El canvas muestra "Nivel: X" junto a la puntuación y las vidas durante toda la partida.
+- [X] El nivel 1 genera 4 filas de bloques; el nivel 5 genera 8 filas; los niveles intermedios generan un número creciente de filas entre ambos.
+- [X] El color de cada fila se asigna de forma aleatoria en cada nivel usando la paleta completa de 7 colores del spritesheet.
+- [X] La velocidad de la bola en el nivel N es mayor que en el nivel N-1, tanto al lanzarla como al reposicionarla tras perder una vida dentro de ese nivel.
+- [X] Al destruir todos los bloques de un nivel (excepto el 5º), aparece el overlay "Nivel X superado", que desaparece solo tras ~1.5s, y el juego continúa en el siguiente nivel con la bola pegada a la pala.
+- [X] Las vidas y la puntuación acumuladas se conservan al pasar de un nivel a otro (no se reinician).
+- [X] Al destruir todos los bloques del nivel 5, se muestra la pantalla de Victoria final existente (SPEC 01) con la puntuación total, sin overlay de "levelup" y sin generar un nivel 6.
+- [X] Reiniciar la partida desde Game Over o Victoria vuelve siempre a nivel 1, con puntuación, vidas y velocidad de bola iniciales.
+- [X] `ball-bounce.mp3` sigue sonando en cada rebote de pared/pala y `break-sound.mp3` en cada bloque roto, en todos los niveles.
+- [X] El botón de silenciar/activar sonido (SPEC 02) sigue funcionando igual en todos los niveles y estados, incluido el nuevo estado "levelup".
 
 ## Decisiones tomadas y descartadas
 
