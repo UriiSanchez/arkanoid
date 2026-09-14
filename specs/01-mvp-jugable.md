@@ -1,6 +1,6 @@
 # 01 - MVP jugable de Arkanoid
 
-**Estado:** Draft
+**Estado:** aprobado
 **Depende de:** Ninguno
 **Fecha:** 2026-09-13
 

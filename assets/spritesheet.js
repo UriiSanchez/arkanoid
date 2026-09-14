@@ -64,3 +64,5 @@ function drawSprite( ctx, name, x, y, w, h ) {
   if ( !sp ) return;
   ctx.drawImage( ssImg, sp.sx, sp.sy, sp.sw, sp.sh, x, y, w, h );
 }
+
+export { loadSpritesheet, drawSprite, drawFrame };
