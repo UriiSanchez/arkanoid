@@ -1,6 +1,6 @@
 # 01 - MVP jugable de Arkanoid
 
-**Estado:** aprobado
+**Estado:** implementado
 **Depende de:** Ninguno
 **Fecha:** 2026-09-13
 
@@ -58,17 +58,17 @@ No se introduce persistencia ni estructuras complejas de datos externas. El esta
 
 ## Criterios de aceptación
 
-- [ ] Abrir `index.html` directamente en un navegador (o servido como estático) carga el juego sin errores en consola.
-- [ ] Desde la pantalla de inicio, se puede iniciar una partida con un botón o tecla.
-- [ ] La pala se mueve tanto con teclado (flechas o A/D) como con el ratón, sin salirse de los límites del canvas.
-- [ ] La bola rebota correctamente en las paredes laterales, la pared superior y la pala, con ángulo de rebote variable según el punto de impacto en la pala.
-- [ ] Al golpear un bloque, este desaparece, se reproduce `break-sound.mp3` y la puntuación aumenta según la fila/color del bloque.
-- [ ] Al rebotar la bola en pared o pala, se reproduce `ball-bounce.mp3`.
-- [ ] Si la bola cae sin tocar la pala, se resta una vida, la bola/pala se reposicionan y la bola queda pegada a la pala hasta lanzarla de nuevo.
-- [ ] Al perder la tercera vida, se muestra la pantalla de Game Over con el puntaje final y opción de reiniciar.
-- [ ] Al romper todos los bloques del nivel, se muestra la pantalla de Victoria con el puntaje final y opción de reiniciar.
-- [ ] Se puede pausar y reanudar la partida en cualquier momento durante el juego, congelando y reanudando el movimiento de la bola.
-- [ ] Reiniciar desde Game Over o Victoria regresa a un estado de partida limpio (vidas, puntuación y bloques reiniciados).
+- [x] Abrir `index.html` directamente en un navegador (o servido como estático) carga el juego sin errores en consola.
+- [x] Desde la pantalla de inicio, se puede iniciar una partida con un botón o tecla.
+- [x] La pala se mueve tanto con teclado (flechas o A/D) como con el ratón, sin salirse de los límites del canvas.
+- [x] La bola rebota correctamente en las paredes laterales, la pared superior y la pala, con ángulo de rebote variable según el punto de impacto en la pala.
+- [x] Al golpear un bloque, este desaparece, se reproduce `break-sound.mp3` y la puntuación aumenta según la fila/color del bloque.
+- [x] Al rebotar la bola en pared o pala, se reproduce `ball-bounce.mp3`.
+- [x] Si la bola cae sin tocar la pala, se resta una vida, la bola/pala se reposicionan y la bola queda pegada a la pala hasta lanzarla de nuevo.
+- [x] Al perder la tercera vida, se muestra la pantalla de Game Over con el puntaje final y opción de reiniciar.
+- [x] Al romper todos los bloques del nivel, se muestra la pantalla de Victoria con el puntaje final y opción de reiniciar.
+- [x] Se puede pausar y reanudar la partida en cualquier momento durante el juego, congelando y reanudando el movimiento de la bola.
+- [x] Reiniciar desde Game Over o Victoria regresa a un estado de partida limpio (vidas, puntuación y bloques reiniciados).
 
 ## Decisiones tomadas y descartadas
 

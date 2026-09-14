@@ -34,6 +34,39 @@ const winScoreEl = document.getElementById('win-score');
 const btnStart = document.getElementById('btn-start');
 const btnRestartGameover = document.getElementById('btn-restart-gameover');
 const btnRestartWin = document.getElementById('btn-restart-win');
+const btnSoundToggle = document.getElementById('btn-sound-toggle');
+
+const SOUND_STORAGE_KEY = 'arkanoid:soundEnabled';
+
+function loadSoundEnabled() {
+  try {
+    return localStorage.getItem(SOUND_STORAGE_KEY) !== 'false';
+  } catch (e) {
+    return true;
+  }
+}
+
+function saveSoundEnabled(value) {
+  try {
+    localStorage.setItem(SOUND_STORAGE_KEY, String(value));
+  } catch (e) {
+    // localStorage no disponible (p.ej. modo privado); se mantiene solo en memoria.
+  }
+}
+
+let soundEnabled = loadSoundEnabled();
+
+function updateSoundButton() {
+  btnSoundToggle.textContent = soundEnabled ? '🔊' : '🔇';
+}
+
+updateSoundButton();
+
+btnSoundToggle.addEventListener('click', () => {
+  soundEnabled = !soundEnabled;
+  saveSoundEnabled(soundEnabled);
+  updateSoundButton();
+});
 
 function setGameState(state) {
   gameState = state;
@@ -66,12 +99,39 @@ function createBlocks() {
 }
 
 let blocks = createBlocks();
+let explosions = [];
+
+function spawnExplosion(block) {
+  explosions.push({
+    x: block.x,
+    y: block.y,
+    width: block.width,
+    height: block.height,
+    color: block.color,
+    startTime: performance.now(),
+  });
+}
+
+function drawExplosions() {
+  const now = performance.now();
+  explosions = explosions.filter((explosion) => {
+    const elapsed = now - explosion.startTime;
+    if (elapsed >= EXPLOSION_DURATION) return false;
+
+    const frames = EXPLOSION_FRAMES[explosion.color];
+    const frameDuration = EXPLOSION_DURATION / frames.length;
+    const frameIndex = Math.min(frames.length - 1, Math.floor(elapsed / frameDuration));
+    drawFrame(ctx, frames[frameIndex], explosion.x, explosion.y, explosion.width, explosion.height);
+    return true;
+  });
+}
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (const block of blocks) {
     if (block.alive) drawSprite(ctx, `block_${block.color}`, block.x, block.y, block.width, block.height);
   }
+  drawExplosions();
   drawSprite(ctx, 'paddle', paddle.x, paddle.y, paddle.width, paddle.height);
   drawSprite(ctx, 'ball', ball.x - ball.radius, ball.y - ball.radius, ball.radius * 2, ball.radius * 2);
   ctx.fillStyle = '#fff';
@@ -94,11 +154,13 @@ const bounceSound = new Audio('assets/sounds/ball-bounce.mp3');
 const breakSound = new Audio('assets/sounds/break-sound.mp3');
 
 function playBounceSound() {
+  if (!soundEnabled) return;
   bounceSound.currentTime = 0;
   bounceSound.play();
 }
 
 function playBreakSound() {
+  if (!soundEnabled) return;
   breakSound.currentTime = 0;
   breakSound.play();
 }
@@ -230,6 +292,7 @@ function checkBlockCollision() {
     block.alive = false;
     score += block.points;
     playBreakSound();
+    spawnExplosion(block);
 
     const overlapLeft = ball.x + ball.radius - block.x;
     const overlapRight = block.x + block.width - (ball.x - ball.radius);
