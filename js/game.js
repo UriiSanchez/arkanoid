@@ -4,7 +4,6 @@ const ctx = canvas.getContext('2d');
 const paddle = { x: canvas.width / 2 - 81, y: canvas.height - 40, width: 162, height: 14 };
 const ball = { x: canvas.width / 2, y: paddle.y - 16, radius: 8, dx: 0, dy: 0, attachedToPaddle: true };
 
-const BLOCK_ROWS = 6;
 const BLOCK_COLS = 10;
 const BLOCK_WIDTH = 64;
 const BLOCK_HEIGHT = 24;
@@ -12,25 +11,34 @@ const BLOCK_PADDING = 4;
 const BLOCK_OFFSET_TOP = 50;
 const BLOCK_OFFSET_LEFT = (canvas.width - (BLOCK_COLS * (BLOCK_WIDTH + BLOCK_PADDING) - BLOCK_PADDING)) / 2;
 
-const ROW_STYLES = [
-  { color: 'red', points: 60 },
-  { color: 'hotpink', points: 50 },
-  { color: 'yellow', points: 40 },
-  { color: 'green', points: 30 },
-  { color: 'cyan', points: 20 },
-  { color: 'magenta', points: 10 },
-];
+const MAX_LEVEL = 5;
+const BASE_ROWS = 4;
+const MAX_ROWS = 8;
+const LEVEL_TRANSITION_DURATION = 1500;
+const BLOCK_COLORS = ['gray', 'red', 'yellow', 'cyan', 'magenta', 'hotpink', 'green'];
+
+function shuffle(array) {
+  const result = array.slice();
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
 
 let score = 0;
 let lives = 3;
+let level = 1;
 let gameState = 'start';
 
 const overlayStart = document.getElementById('overlay-start');
 const overlayPause = document.getElementById('overlay-pause');
 const overlayGameover = document.getElementById('overlay-gameover');
 const overlayWin = document.getElementById('overlay-win');
+const overlayLevelup = document.getElementById('overlay-levelup');
 const gameoverScoreEl = document.getElementById('gameover-score');
 const winScoreEl = document.getElementById('win-score');
+const levelupMessageEl = document.getElementById('levelup-message');
 const btnStart = document.getElementById('btn-start');
 const btnRestartGameover = document.getElementById('btn-restart-gameover');
 const btnRestartWin = document.getElementById('btn-restart-win');
@@ -74,23 +82,36 @@ function setGameState(state) {
   overlayPause.classList.toggle('hidden', state !== 'paused');
   overlayGameover.classList.toggle('hidden', state !== 'gameover');
   overlayWin.classList.toggle('hidden', state !== 'win');
+  overlayLevelup.classList.toggle('hidden', state !== 'levelup');
 
   if (state === 'gameover') gameoverScoreEl.textContent = `Puntuación final: ${score}`;
   if (state === 'win') winScoreEl.textContent = `Puntuación final: ${score}`;
+
+  if (state === 'levelup') {
+    setTimeout(() => {
+      if (gameState === 'levelup') setGameState('playing');
+    }, LEVEL_TRANSITION_DURATION);
+  }
 }
 
-function createBlocks() {
+function createBlocks(level) {
+  const rows = Math.min(BASE_ROWS + (level - 1), MAX_ROWS);
+  let rowColors = [];
+  while (rowColors.length < rows) rowColors = rowColors.concat(shuffle(BLOCK_COLORS));
+  rowColors = rowColors.slice(0, rows);
+
   const blocks = [];
-  for (let row = 0; row < BLOCK_ROWS; row++) {
-    const style = ROW_STYLES[row];
+  for (let row = 0; row < rows; row++) {
+    const color = rowColors[row];
+    const points = (rows - row) * 10;
     for (let col = 0; col < BLOCK_COLS; col++) {
       blocks.push({
         x: BLOCK_OFFSET_LEFT + col * (BLOCK_WIDTH + BLOCK_PADDING),
         y: BLOCK_OFFSET_TOP + row * (BLOCK_HEIGHT + BLOCK_PADDING),
         width: BLOCK_WIDTH,
         height: BLOCK_HEIGHT,
-        color: style.color,
-        points: style.points,
+        color,
+        points,
         alive: true,
       });
     }
@@ -98,7 +119,7 @@ function createBlocks() {
   return blocks;
 }
 
-let blocks = createBlocks();
+let blocks = createBlocks(level);
 let explosions = [];
 
 function spawnExplosion(block) {
@@ -137,6 +158,7 @@ function draw() {
   ctx.fillStyle = '#fff';
   ctx.font = '16px sans-serif';
   ctx.fillText(`Puntuación: ${score}`, 10, 20);
+  ctx.fillText(`Nivel: ${level}`, canvas.width / 2 - 30, 20);
   ctx.fillText(`Vidas: ${lives}`, canvas.width - 80, 20);
 }
 
@@ -147,8 +169,13 @@ function clampPaddleX(x) {
   return Math.max(0, Math.min(canvas.width - paddle.width, x));
 }
 
-const BALL_SPEED = 5;
+const BASE_BALL_SPEED = 5;
+const BALL_SPEED_INCREMENT = 0.7;
 const MAX_BOUNCE_ANGLE = Math.PI / 3; // 60 grados
+
+function getBallSpeedForLevel(lvl) {
+  return BASE_BALL_SPEED + (lvl - 1) * BALL_SPEED_INCREMENT;
+}
 
 const bounceSound = new Audio('assets/sounds/ball-bounce.mp3');
 const breakSound = new Audio('assets/sounds/break-sound.mp3');
@@ -169,7 +196,7 @@ function launchBall() {
   if (gameState !== 'playing' || !ball.attachedToPaddle) return;
   ball.attachedToPaddle = false;
   ball.dx = 0;
-  ball.dy = -BALL_SPEED;
+  ball.dy = -getBallSpeedForLevel(level);
 }
 
 function resetBallAndPaddle() {
@@ -195,7 +222,8 @@ function togglePause() {
 function resetGame() {
   score = 0;
   lives = 3;
-  blocks = createBlocks();
+  level = 1;
+  blocks = createBlocks(level);
   resetBallAndPaddle();
   setGameState('playing');
 }
@@ -265,8 +293,9 @@ function update() {
     const hitPos = (ball.x - (paddle.x + paddle.width / 2)) / (paddle.width / 2);
     const clampedHitPos = Math.max(-1, Math.min(1, hitPos));
     const angle = clampedHitPos * MAX_BOUNCE_ANGLE;
-    ball.dx = BALL_SPEED * Math.sin(angle);
-    ball.dy = -BALL_SPEED * Math.cos(angle);
+    const speed = getBallSpeedForLevel(level);
+    ball.dx = speed * Math.sin(angle);
+    ball.dy = -speed * Math.cos(angle);
     playBounceSound();
   }
 
@@ -307,7 +336,15 @@ function checkBlockCollision() {
     }
 
     if (blocks.every((b) => !b.alive)) {
-      setGameState('win');
+      if (level < MAX_LEVEL) {
+        levelupMessageEl.textContent = `Nivel ${level} superado`;
+        level += 1;
+        blocks = createBlocks(level);
+        resetBallAndPaddle();
+        setGameState('levelup');
+      } else {
+        setGameState('win');
+      }
     }
 
     break;
